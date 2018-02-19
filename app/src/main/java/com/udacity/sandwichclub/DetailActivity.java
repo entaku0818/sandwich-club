@@ -3,12 +3,20 @@ package com.udacity.sandwichclub;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.view.ViewGroup;
 
 import com.squareup.picasso.Picasso;
 import com.udacity.sandwichclub.model.Sandwich;
 import com.udacity.sandwichclub.utils.JsonUtils;
+
+import org.json.JSONException;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -21,6 +29,14 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         ImageView ingredientsIv = findViewById(R.id.image_iv);
+
+
+        LinearLayout alsoKnownAs = findViewById(R.id.also_known_tv);
+        TextView placeOfOrigin = findViewById(R.id.origin_tv);
+        LinearLayout ingredients = findViewById(R.id.ingredients_tv);
+        TextView description = findViewById(R.id.description_tv);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -36,7 +52,18 @@ public class DetailActivity extends AppCompatActivity {
 
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
         String json = sandwiches[position];
-        Sandwich sandwich = JsonUtils.parseSandwichJson(json);
+        Sandwich sandwich = new Sandwich();
+        try {
+            sandwich = JsonUtils.parseSandwichJson(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        Log.d("json",sandwich.toString());
+
         if (sandwich == null) {
             // Sandwich data unavailable
             closeOnError();
@@ -48,7 +75,31 @@ public class DetailActivity extends AppCompatActivity {
                 .load(sandwich.getImage())
                 .into(ingredientsIv);
 
+
         setTitle(sandwich.getMainName());
+
+        //sandwichDetail is set
+        placeOfOrigin.setText(sandwich.getPlaceOfOrigin());
+        description.setText(sandwich.getDescription());
+
+        for (String ingredient : sandwich.getIngredients()){
+            TextView text = new TextView(this);
+            Log.d("json",ingredient);
+            text.setText(ingredient);
+            text.setLayoutParams(layoutParams);
+            ingredients.addView(text);
+        }
+
+        for (String alsoKnown : sandwich.getAlsoKnownAs()){
+            TextView text = new TextView(this);
+            Log.d("json",alsoKnown);
+            text.setText(alsoKnown);
+            text.setLayoutParams(layoutParams);
+            alsoKnownAs.addView(text);
+        }
+
+
+
     }
 
     private void closeOnError() {
@@ -57,6 +108,8 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI() {
+
+
 
     }
 }
